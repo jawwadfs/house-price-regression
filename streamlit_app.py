@@ -482,11 +482,7 @@ with tab_pred:
 # TAB 2 – AI EXPLANATION (Gemini)
 # ════════════════════════════════════════════════════════════════════════════
 with tab_ai:
-    st.markdown(
-        "### 🤖 AI Explanation  "
-        '<span class="ai-badge">JURY 3 PREVIEW</span>',
-        unsafe_allow_html=True,
-    )
+    st.markdown("### 🤖 AI Explanation")
     st.caption(
         "Gemini reads the model's prediction and sensitivity data and explains it in plain English. "
         "You can ask follow-up questions. The regression model stays the predictor; GenAI only explains."
