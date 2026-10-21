@@ -325,7 +325,7 @@ def ask_gemini(system_prompt, history, user_message):
     import google.generativeai as genai
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
+        model_name="gemini-pro",
         system_instruction=system_prompt,
     )
     chat = model.start_chat(history=history)
