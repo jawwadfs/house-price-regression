@@ -278,7 +278,6 @@ def _gemini_available():
     except Exception:
         return False
 
-
 def build_context(v, preds, final_pred, lo, hi, deltas):
     """Build a plain-text context block for the Gemini prompt."""
     top_factors = "\n".join(
@@ -321,15 +320,24 @@ def build_context(v, preds, final_pred, lo, hi, deltas):
 
 
 def ask_gemini(system_prompt, history, user_message):
-    """Send a message to Gemini and return the text response."""
-    import google.generativeai as genai
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    model = genai.GenerativeModel(
-        model_name="gemini-pro",
-        system_instruction=system_prompt,
+    """Send a message to Gemini using the new google-genai SDK."""
+    from google import genai
+    from google.genai import types
+
+    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+
+    # Build conversation contents
+    contents = []
+    for msg in history:
+        role = "user" if msg["role"] == "user" else "model"
+        contents.append(types.Content(role=role, parts=[types.Part(text=msg["parts"][0])]))
+    contents.append(types.Content(role="user", parts=[types.Part(text=user_message)]))
+
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        config=types.GenerateContentConfig(system_instruction=system_prompt),
+        contents=contents,
     )
-    chat = model.start_chat(history=history)
-    response = chat.send_message(user_message)
     return response.text
 
 
