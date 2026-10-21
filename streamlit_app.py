@@ -320,25 +320,32 @@ def build_context(v, preds, final_pred, lo, hi, deltas):
 
 
 def ask_gemini(system_prompt, history, user_message):
-    """Send a message to Gemini using the new google-genai SDK."""
+    """Send a message to Gemini using the new google-genai SDK. Retries on 503."""
+    import time
     from google import genai
     from google.genai import types
 
     client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
-    # Build conversation contents
     contents = []
     for msg in history:
         role = "user" if msg["role"] == "user" else "model"
         contents.append(types.Content(role=role, parts=[types.Part(text=msg["parts"][0])]))
     contents.append(types.Content(role="user", parts=[types.Part(text=user_message)]))
 
-    response = client.models.generate_content(
-        model="gemini-3.8-flash",
-        config=types.GenerateContentConfig(system_instruction=system_prompt),
-        contents=contents,
-    )
-    return response.text
+    for attempt in range(3):
+        try:
+            response = client.models.generate_content(
+                model="gemini-3.8-flash",
+                config=types.GenerateContentConfig(system_instruction=system_prompt),
+                contents=contents,
+            )
+            return response.text
+        except Exception as e:
+            if "503" in str(e) and attempt < 2:
+                time.sleep(3)
+                continue
+            raise
 
 
 SYSTEM_PROMPT = """You are a friendly and knowledgeable real estate pricing assistant.
