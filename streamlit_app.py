@@ -334,7 +334,7 @@ def ask_gemini(system_prompt, history, user_message):
     contents.append(types.Content(role="user", parts=[types.Part(text=user_message)]))
 
     response = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-3.8-flash",
         config=types.GenerateContentConfig(system_instruction=system_prompt),
         contents=contents,
     )
